@@ -20,22 +20,25 @@ pub struct Descriptor {
 pub struct Platform {
     // Architecture field specifies the CPU architecture, for example
     // `amd64` or `ppc64`.
-    architecture: String,
+    // TODO: use enum
+    pub architecture: String,
 
     // OS specifies the operating system, for example `linux` or `windows`.
-    os: String,
+    // TODO: use enum
+    pub os: String,
 
     // OSVersion is an optional field specifying the operating system
     // version, for example on Windows `10.0.14393.1066`.
-    os_version: String,
+    pub os_version: Option<String>,
 
     // OSFeatures is an optional field specifying an array of strings,
     // each listing a required OS feature (for example on Windows `win32k`).
-    os_features: Vec<String>,
+    pub os_features: Option<Vec<String>>,
 
     // Variant is an optional field specifying a variant of the CPU, for
     // example `v7` to specify ARMv7 when architecture is `arm`.
-    variant: String,
+    // TODO: use enum
+    pub variant: Option<String>,
 }
 
 mod tests {
@@ -54,6 +57,7 @@ mod tests {
               "https://example.com/example-manifest"
             ]
         }"#;
+
         let descriptor: Descriptor = serde_json::from_str(DESCRIPTOR_JSON).unwrap();
         let expected = Descriptor {
             media_type: MediaType::ImageManifest,
