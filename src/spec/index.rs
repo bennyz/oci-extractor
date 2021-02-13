@@ -63,9 +63,7 @@ mod tests {
             media_type: MediaType::ImageManifest,
             digest: Digest::new(
                 Algorithm::Sha256,
-                String::from(
-                    "e692418e4cbaf90ca69d05a66403747baa33ee08806650b51fab815ad7fc331f",
-                ),
+                String::from("e692418e4cbaf90ca69d05a66403747baa33ee08806650b51fab815ad7fc331f"),
             ),
             annotations: None,
             size: 7143,
@@ -84,9 +82,7 @@ mod tests {
             media_type: MediaType::ImageManifest,
             digest: Digest::new(
                 Algorithm::Sha256,
-                String::from(
-                    "5b0bcabd1ed22e9fb1310cf6c2dec7cdef19f0ad69efa1f392e94a4333501270",
-                ),
+                String::from("5b0bcabd1ed22e9fb1310cf6c2dec7cdef19f0ad69efa1f392e94a4333501270"),
             ),
             annotations: None,
             size: 7682,
