@@ -34,8 +34,8 @@ impl FromStr for Algorithm {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Digest {
-    algorithm: Algorithm,
-    encoded: String,
+    pub algorithm: Algorithm,
+    pub encoded: String,
 }
 
 impl Digest {
