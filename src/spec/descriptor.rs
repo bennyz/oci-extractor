@@ -1,8 +1,8 @@
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use serde::{Serialize, Deserialize};
 
-use super::media_types::MediaType;
 use super::digest::Digest;
+use super::media_types::MediaType;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -18,24 +18,24 @@ pub struct Descriptor {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Platform {
-	// Architecture field specifies the CPU architecture, for example
-	// `amd64` or `ppc64`.
-	architecture: String,
+    // Architecture field specifies the CPU architecture, for example
+    // `amd64` or `ppc64`.
+    architecture: String,
 
-	// OS specifies the operating system, for example `linux` or `windows`.
-	os: String,
+    // OS specifies the operating system, for example `linux` or `windows`.
+    os: String,
 
-	// OSVersion is an optional field specifying the operating system
-	// version, for example on Windows `10.0.14393.1066`.
-	os_version: String,
+    // OSVersion is an optional field specifying the operating system
+    // version, for example on Windows `10.0.14393.1066`.
+    os_version: String,
 
-	// OSFeatures is an optional field specifying an array of strings,
-	// each listing a required OS feature (for example on Windows `win32k`).
-	os_features: Vec<String>,
+    // OSFeatures is an optional field specifying an array of strings,
+    // each listing a required OS feature (for example on Windows `win32k`).
+    os_features: Vec<String>,
 
-	// Variant is an optional field specifying a variant of the CPU, for
-	// example `v7` to specify ARMv7 when architecture is `arm`.
-	variant: String
+    // Variant is an optional field specifying a variant of the CPU, for
+    // example `v7` to specify ARMv7 when architecture is `arm`.
+    variant: String,
 }
 
 mod tests {
@@ -57,7 +57,10 @@ mod tests {
         let descriptor: Descriptor = serde_json::from_str(DESCRIPTOR_JSON).unwrap();
         let expected = Descriptor {
             media_type: MediaType::ImageManifest,
-            digest: Digest::new(Algorithm::Sha256, String::from("5b0bcabd1ed22e9fb1310cf6c2dec7cdef19f0ad69efa1f392e94a4333501270")),
+            digest: Digest::new(
+                Algorithm::Sha256,
+                String::from("5b0bcabd1ed22e9fb1310cf6c2dec7cdef19f0ad69efa1f392e94a4333501270"),
+            ),
             annotations: None,
             size: 7682,
             urls: Some(vec![String::from("https://example.com/example-manifest")]),
