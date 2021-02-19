@@ -3,9 +3,11 @@ use std::collections::HashMap;
 
 use super::descriptor::Descriptor;
 
+pub const INDEX_FILE_NAME: &str = "index.json";
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Index {
+pub struct Index {
     pub schema_version: u32,
 
     // Manifests references platform specific manifests.

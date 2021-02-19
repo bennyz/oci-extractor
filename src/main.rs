@@ -1,4 +1,5 @@
 use clap::{App, Arg, SubCommand};
+use umoci_rs::unpacker::Unpacker;
 
 fn main() {
     let matches = App::new("umoci-rs")
@@ -30,5 +31,7 @@ fn main() {
         let bundle = unpack.value_of("bundle").unwrap();
         println!("image: {}", image);
         println!("bundle: {}", bundle);
+        let u = Unpacker::new(String::from(image), String::from(bundle));
+        u.unpack();
     }
 }

@@ -1,1 +1,2 @@
-mod spec;
+pub mod spec;
+pub mod unpacker;
