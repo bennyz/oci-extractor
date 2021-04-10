@@ -5,18 +5,18 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Manifest {
-    schema_version: u32,
+pub struct Manifest {
+    pub schema_version: u32,
 
     // Config references a configuration object for a container, by digest.
     // The referenced configuration object is a JSON blob that the runtime uses to set up the container.
-    config: Descriptor,
+    pub config: Descriptor,
 
     // Layers is an indexed list of layers referenced by the manifest.
-    layers: Vec<Descriptor>,
+    pub layers: Vec<Descriptor>,
 
     // Annotations contains arbitrary metadata for the image manifest.
-    annotations: Option<HashMap<String, String>>,
+    pub annotations: Option<HashMap<String, String>>,
 }
 
 mod tests {

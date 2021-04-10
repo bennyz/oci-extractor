@@ -21,6 +21,12 @@ fn main() {
                         .takes_value(true)
                         .required(true)
                         .help("path of the bundle"),
+                )
+                .arg(
+                    Arg::with_name("destination")
+                        .takes_value(true)
+                        .required(true)
+                        .help("rootfs target dir"),
                 ),
         )
         .get_matches();
@@ -29,9 +35,15 @@ fn main() {
         // Use the struct like normal
         let image = unpack.value_of("image").unwrap();
         let bundle = unpack.value_of("bundle").unwrap();
+        let destination = unpack.value_of("destination").unwrap();
+
         println!("image: {}", image);
         println!("bundle: {}", bundle);
-        let u = Unpacker::new(String::from(image), String::from(bundle));
+        let u = Unpacker::new(
+            String::from(image),
+            String::from(bundle),
+            String::from(destination),
+        );
         u.unpack();
     }
 }
