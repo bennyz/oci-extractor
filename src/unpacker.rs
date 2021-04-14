@@ -9,15 +9,13 @@ use super::spec::index::{Index, INDEX_FILE_NAME};
 #[derive(Debug)]
 pub struct Unpacker {
     image_name: String,
-    bundle_path: String,
     destination: String,
 }
 
 impl Unpacker {
-    pub fn new(image_name: String, bundle_path: String, destination: String) -> Self {
+    pub fn new(image_name: String, destination: String) -> Self {
         Unpacker {
             image_name,
-            bundle_path,
             destination,
         }
     }
