@@ -50,12 +50,6 @@ impl Engine {
         let index: Index = serde_json::from_reader(reader)?;
 
         for manifest in &index.manifests {
-            println!("{:?}", manifest.annotations);
-            println!("digest: {:?}", manifest.digest);
-            println!(
-                "read config for digest {}:{}",
-                manifest.digest.algorithm, manifest.digest.encoded
-            );
             self.parse_digest(&manifest.digest.algorithm, &manifest.digest.encoded)?;
         }
 
@@ -65,13 +59,11 @@ impl Engine {
     fn parse_digest(&self, algorithm: &Algorithm, encoded: &str) -> anyhow::Result<()> {
         let blob_path = format!("{}/{}/{}", self.image_path.as_str(), BLOBS, algorithm);
         let path = format!("{}/{}", &blob_path, &encoded);
-        println!("path {:?}", path);
         let file = File::open(&path)?;
         let reader = BufReader::new(file);
         let manifest: Manifest = serde_json::from_reader(reader)?;
+
         for layer in manifest.layers {
-            println!("layer {:?}", layer);
-            println!("layer digest {:?}", layer.digest.encoded);
             self.parse_tar(&blob_path, &layer.digest.encoded)?;
         }
         Ok(())
