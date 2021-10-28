@@ -20,13 +20,14 @@ pub struct Manifest {
 }
 
 mod tests {
+    use std::collections::HashMap;
+
     use crate::spec::{
         descriptor::Descriptor,
         digest::{Algorithm, Digest},
+        manifest::Manifest,
         media_types::MediaType,
     };
-
-    use super::*;
 
     #[test]
     fn test_deseralize_manifest() {

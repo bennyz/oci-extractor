@@ -42,9 +42,11 @@ pub struct Platform {
 }
 
 mod tests {
-    use crate::spec::digest::Algorithm;
-
-    use super::*;
+    use crate::spec::{
+        descriptor::Descriptor,
+        digest::{Algorithm, Digest},
+        media_types::MediaType,
+    };
 
     #[test]
     fn test_deseriaize_descriptor() {

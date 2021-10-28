@@ -1,4 +1,8 @@
-use std::{fs::{self, File}, io::BufReader, path::PathBuf};
+use std::{
+    fs::{self, File},
+    io::BufReader,
+    path::PathBuf,
+};
 
 use crate::spec::digest::Algorithm;
 use crate::spec::layout::BLOBS;

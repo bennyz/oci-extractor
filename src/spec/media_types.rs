@@ -73,7 +73,7 @@ impl<'de> Deserialize<'de> for MediaType {
 }
 
 mod tests {
-    use super::*;
+    use crate::spec::media_types::MediaType;
 
     #[test]
     fn deserialize_media_type() {

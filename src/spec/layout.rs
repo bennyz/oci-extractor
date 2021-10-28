@@ -8,5 +8,5 @@ pub const IMAGE_LAYOUT_VERSION: &str = "1.0.0";
 pub const BLOBS: &str = "blobs";
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ImageLayout {
-	image_layout_version: String,
+    image_layout_version: String,
 }

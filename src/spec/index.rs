@@ -18,13 +18,14 @@ pub struct Index {
 }
 
 mod tests {
+    use std::collections::HashMap;
+
     use crate::spec::{
-        descriptor::Platform,
+        descriptor::{Descriptor, Platform},
         digest::{Algorithm, Digest},
+        index::Index,
         media_types::MediaType,
     };
-
-    use super::*;
 
     #[test]
     fn test_deserialize_index() {

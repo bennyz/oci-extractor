@@ -96,11 +96,15 @@ pub struct Image {
 }
 
 mod tests {
+    use std::collections::HashMap;
+
+    use chrono::DateTime;
     use serde_json::json;
 
-    use crate::spec::digest::Algorithm;
-
-    use super::*;
+    use crate::spec::{
+        config::{History, Image, ImageConfig, RootFs},
+        digest::{Algorithm, Digest},
+    };
 
     #[test]
     fn test_deserialize_image() {

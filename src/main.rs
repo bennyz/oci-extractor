@@ -30,10 +30,7 @@ fn main() {
         let image = unpack.value_of("image").unwrap();
         let destination = unpack.value_of("destination").unwrap();
 
-        let u = Unpacker::new(
-            String::from(image),
-            String::from(destination),
-        );
+        let u = Unpacker::new(String::from(image), String::from(destination));
 
         u.unpack();
     }
