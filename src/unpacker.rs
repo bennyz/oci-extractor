@@ -15,7 +15,7 @@ use crate::spec::manifest::Manifest;
 use super::spec::index::{Index, INDEX_FILE_NAME};
 
 const WHITEOUT_PREFIX: &str = ".wh.";
-const WHITEOUT_OPAQUE: &str = ".wh.wh..opq";
+const WHITEOUT_OPAQUE: &str = ".wh..wh..opq";
 
 #[derive(Debug)]
 pub struct Unpacker {
@@ -94,13 +94,12 @@ impl Engine {
             .entries()?
             .filter_map(|e| e.ok())
             .map(|entry| -> anyhow::Result<PathBuf> {
-                dbg!(&entry.path());
                 let p = self.unpack_entry(&destination, entry)?;
 
                 Ok(p)
             })
             .filter_map(|e| e.ok())
-            .for_each(|x| println!("> {}", x.display()));
+            .for_each(|_x| {});
 
         Ok(())
     }
@@ -110,23 +109,27 @@ impl Engine {
         destination: &Path,
         mut entry: Entry<T>,
     ) -> anyhow::Result<PathBuf> {
-        println!("dest {:?}", destination);
         let path: PathBuf = entry.path()?.to_path_buf();
-        println!(
-            "last {:?}, prev: {:?}",
-            path.components().last().unwrap(),
-            path.parent()
-        );
+        let last_component = path
+            .components()
+            .last()
+            .unwrap()
+            .as_os_str()
+            .to_str()
+            .unwrap();
         if entry.header().entry_type().is_dir() {
-            println!("path is dir {:?}", destination.join(&path));
-            fs::create_dir_all(destination.join(&path))?;
-        } else {
-            let container_path = &destination.join(path.parent().unwrap());
-            println!("container_path {:?}", container_path);
-            fs::create_dir_all(container_path)?;
-            entry.unpack_in(container_path)?;
-            //let mut f = fs::File::create(container_path.join(path.components().last().unwrap()))?;
-            //f.write_all(&entry.path_bytes())?;
+            if !destination.join(&path).exists() {
+                fs::create_dir(destination.join(&path))?;
+            }
+        } else if !last_component.starts_with(WHITEOUT_PREFIX) {
+            entry.unpack_in(destination)?;
+        } else if last_component.starts_with(WHITEOUT_OPAQUE) {
+            println!(
+                "path {:?} is opaque, removing: {:?}",
+                path,
+                path.parent().unwrap()
+            );
+            fs::remove_dir_all(path.parent().unwrap())?;
         }
 
         return Ok(path);
