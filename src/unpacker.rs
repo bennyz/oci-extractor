@@ -1,14 +1,21 @@
 use std::{
     fs::{self, File},
-    io::BufReader,
-    path::PathBuf,
+    io::{BufReader, Write},
+    path::{Path, PathBuf},
 };
+
+use flate2::read::GzDecoder;
+use tar::Archive;
+use tar::Entry;
 
 use crate::spec::digest::Algorithm;
 use crate::spec::layout::BLOBS;
 use crate::spec::manifest::Manifest;
 
 use super::spec::index::{Index, INDEX_FILE_NAME};
+
+const WHITEOUT_PREFIX: &str = ".wh.";
+const WHITEOUT_OPAQUE: &str = ".wh..wh..opq";
 
 #[derive(Debug)]
 pub struct Unpacker {
@@ -44,14 +51,14 @@ impl Engine {
     }
 
     pub fn parse(&self) -> anyhow::Result<Index> {
-        // TODO: find a sane place for this
-        fs::create_dir(&self.destination)?;
-
         // TODO: add validation for layout file
         let path = format!("{}/{}", self.image_path.as_str(), INDEX_FILE_NAME);
         let file = File::open(path)?;
         let reader = BufReader::new(file);
         let index: Index = serde_json::from_reader(reader)?;
+
+        // TODO: find a sane place for this
+        fs::create_dir(&self.destination)?;
 
         for manifest in &index.manifests {
             self.parse_digest(&manifest.digest.algorithm, &manifest.digest.encoded)?;
@@ -68,15 +75,12 @@ impl Engine {
         let manifest: Manifest = serde_json::from_reader(reader)?;
 
         for layer in manifest.layers {
-            self.parse_tar(&blob_path, &layer.digest.encoded)?;
+            self.unpack_layer(&blob_path, &layer.digest.encoded)?;
         }
         Ok(())
     }
 
-    fn parse_tar(&self, layer_path: &str, layer: &str) -> anyhow::Result<()> {
-        use flate2::read::GzDecoder;
-        use tar::Archive;
-
+    fn unpack_layer(&self, layer_path: &str, layer: &str) -> anyhow::Result<()> {
         let path = format!("{}/{}", &layer_path, layer);
         println!("opening file: {:?}", &path);
         let file = File::open(&path)?;
@@ -84,19 +88,50 @@ impl Engine {
         // TODO: GzDecoder is not necessarily correct, a robust solution
         // would be to read the layer's media type
         let mut archive = Archive::new(GzDecoder::new(file));
-
+        let destination = Path::new(&self.destination);
         println!("Extracting the following files:");
         archive
             .entries()?
             .filter_map(|e| e.ok())
-            .map(|mut entry| -> anyhow::Result<PathBuf> {
-                let path = entry.path()?.into_owned();
-                entry.unpack_in(&self.destination)?;
-                Ok(path)
+            .map(|entry| -> anyhow::Result<PathBuf> {
+                let p = self.unpack_entry(&destination, entry)?;
+
+                Ok(p)
             })
             .filter_map(|e| e.ok())
-            .for_each(|x| println!("> {}", x.display()));
+            .for_each(|_x| {});
 
         Ok(())
+    }
+
+    fn unpack_entry<T: std::io::Read>(
+        &self,
+        destination: &Path,
+        mut entry: Entry<T>,
+    ) -> anyhow::Result<PathBuf> {
+        let path: PathBuf = entry.path()?.to_path_buf();
+        let last_component = path
+            .components()
+            .last()
+            .unwrap()
+            .as_os_str()
+            .to_str()
+            .unwrap();
+        if entry.header().entry_type().is_dir() {
+            if !destination.join(&path).exists() {
+                fs::create_dir(destination.join(&path))?;
+            }
+        } else if !last_component.starts_with(WHITEOUT_PREFIX) {
+            entry.unpack_in(destination)?;
+        } else if last_component.starts_with(WHITEOUT_OPAQUE) {
+            println!(
+                "path {:?} is opaque, removing: {:?}",
+                path,
+                path.parent().unwrap()
+            );
+            fs::remove_dir_all(path.parent().unwrap())?;
+        }
+
+        return Ok(path);
     }
 }
