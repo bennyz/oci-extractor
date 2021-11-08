@@ -1,5 +1,5 @@
-use clap::{AppSettings, Parser};
-use umoci_rs::unpacker::Unpacker;
+use clap::Parser;
+use oci_extractor::unpacker::Unpacker;
 
 #[derive(Parser)]
 struct Opts {

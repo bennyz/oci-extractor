@@ -1,6 +1,6 @@
 use std::{
     fs::{self, File},
-    io::{BufReader, Write},
+    io::BufReader,
     path::{Path, PathBuf},
 };
 
@@ -75,31 +75,25 @@ impl Engine {
         let manifest: Manifest = serde_json::from_reader(reader)?;
 
         for layer in manifest.layers {
+            println!("upacking layer: {:?}", &layer.digest.encoded);
             self.unpack_layer(&blob_path, &layer.digest.encoded)?;
         }
+
         Ok(())
     }
 
     fn unpack_layer(&self, layer_path: &str, layer: &str) -> anyhow::Result<()> {
         let path = format!("{}/{}", &layer_path, layer);
-        println!("opening file: {:?}", &path);
         let file = File::open(&path)?;
 
         // TODO: GzDecoder is not necessarily correct, a robust solution
         // would be to read the layer's media type
         let mut archive = Archive::new(GzDecoder::new(file));
         let destination = Path::new(&self.destination);
-        println!("Extracting the following files:");
-        archive
-            .entries()?
-            .filter_map(|e| e.ok())
-            .map(|entry| -> anyhow::Result<PathBuf> {
-                let p = self.unpack_entry(&destination, entry)?;
 
-                Ok(p)
-            })
-            .filter_map(|e| e.ok())
-            .for_each(|_x| {});
+        archive.entries()?.filter_map(|e| e.ok()).for_each(|entry| {
+            self.unpack_entry(destination, entry);
+        });
 
         Ok(())
     }
@@ -108,8 +102,8 @@ impl Engine {
         &self,
         destination: &Path,
         mut entry: Entry<T>,
-    ) -> anyhow::Result<PathBuf> {
-        let path: PathBuf = entry.path()?.to_path_buf();
+    ) {
+        let path: PathBuf = entry.path().unwrap().to_path_buf();
         let last_component = path
             .components()
             .last()
@@ -119,19 +113,12 @@ impl Engine {
             .unwrap();
         if entry.header().entry_type().is_dir() {
             if !destination.join(&path).exists() {
-                fs::create_dir(destination.join(&path))?;
+                fs::create_dir(destination.join(&path)).unwrap();
             }
         } else if !last_component.starts_with(WHITEOUT_PREFIX) {
-            entry.unpack_in(destination)?;
+            entry.unpack_in(destination).unwrap();
         } else if last_component.starts_with(WHITEOUT_OPAQUE) {
-            println!(
-                "path {:?} is opaque, removing: {:?}",
-                path,
-                path.parent().unwrap()
-            );
-            fs::remove_dir_all(path.parent().unwrap())?;
+            fs::remove_dir_all(path.parent().unwrap()).unwrap();
         }
-
-        return Ok(path);
     }
 }

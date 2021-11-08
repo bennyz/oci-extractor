@@ -336,6 +336,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "oci-extractor"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "flate2",
+ "oci-spec",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tar",
+ "thiserror",
+]
+
+[[package]]
 name = "oci-spec"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -546,22 +562,6 @@ name = "typenum"
 version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b63708a265f51345575b27fe43f9500ad611579e764c79edbc2037b1121959ec"
-
-[[package]]
-name = "umoci-rs"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "clap",
- "flate2",
- "oci-spec",
- "serde",
- "serde_json",
- "sha2",
- "tar",
- "thiserror",
-]
 
 [[package]]
 name = "unicase"
