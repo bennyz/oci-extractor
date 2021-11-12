@@ -98,11 +98,7 @@ impl Engine {
         Ok(())
     }
 
-    fn unpack_entry<T: std::io::Read>(
-        &self,
-        destination: &Path,
-        mut entry: Entry<T>,
-    ) {
+    fn unpack_entry<T: std::io::Read>(&self, destination: &Path, mut entry: Entry<T>) {
         let path: PathBuf = entry.path().unwrap().to_path_buf();
         let last_component = path
             .components()
