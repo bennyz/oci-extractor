@@ -1,4 +1,5 @@
 use clap::Parser;
+use oci_extractor::copy::Copy;
 use oci_extractor::unpacker::Unpacker;
 
 #[derive(Parser)]
@@ -9,22 +10,36 @@ struct Opts {
 
 #[derive(Parser)]
 enum SubCommand {
-    Unpack(Unpack),
+    Unpack(UnpackCmd),
+    Copy(CopyCmd),
 }
 
 #[derive(Parser)]
-struct Unpack {
+struct UnpackCmd {
     #[clap(long)]
     image: String,
     destination: String,
 }
 
-fn main() {
+#[derive(Parser)]
+struct CopyCmd {
+    #[clap(long)]
+    image: String,
+    destination: String,
+}
+
+#[tokio::main]
+async fn main() {
     let opts: Opts = Opts::parse();
     match opts.subcmd {
         SubCommand::Unpack(u) => {
             let unpacker = Unpacker::new(u.image, u.destination);
             unpacker.unpack();
+        }
+        SubCommand::Copy(c) => {
+            println!("image {} dest {}", c.image, c.destination);
+            let copy = Copy::new(c.image, c.destination);
+            copy.run().await;
         }
     }
 }
