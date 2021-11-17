@@ -4,7 +4,7 @@
 
 ### Usage:
 ```shell
-# skopeo copy docker://alpine:latest oci:alpine
-# ./oci-extractor unpack --image alpine alpine_rootfs
+skopeo copy docker://alpine:latest oci:alpine
+./oci-extractor unpack --image alpine alpine_rootfs
 ```
 
