@@ -1,9 +1,12 @@
+use crate::spec::{self, manifest, manifestv1};
 use chrono::{DateTime, FixedOffset};
 use reqwest;
 use serde::{Deserialize, Serialize};
 
-const REGISTRY: &str = "https://index.docker.io/v2/";
-const DOCKER_AUTH: &str = "https://auth.docker.io/token?scope=repository";
+const REGISTRY: &str = "http://localhost:5000/v2/";
+
+// TODO figure out athentication
+//const DOCKER_AUTH: &str = "https://auth.docker.io/token?scope=repository";
 
 #[derive(Debug)]
 pub struct Copy {
@@ -27,32 +30,22 @@ impl Copy {
         // TODO make this less stupid
         let image_name: &str = self.image.split(":").collect::<Vec<&str>>()[0];
         let tag: &str = self.image.split(":").collect::<Vec<&str>>()[1];
-        let reply: AuthData = self
-            .client
-            .get(format!(
-                "{}:library/{}:pull&service=registry.docker.io",
-                DOCKER_AUTH, image_name
-            ))
-            .send()
-            .await?
-            .json::<AuthData>()
-            .await?;
-        println!("auth data {:?}", reply);
+
+        // TODO actually check the manifest version
         let reply = self
             .client
-            .get(format!(
-                "{}/library/{}/manifests/{}",
-                REGISTRY, image_name, tag
-            ))
-            .header(
-                reqwest::header::AUTHORIZATION,
-                format!("Bearer {}", reply.token),
-            )
+            .get(format!("{}/{}/manifests/{}", REGISTRY, image_name, tag))
             .send()
-            .await?
-            .text()
             .await?;
-        println!("reply {:?}", reply);
+        let content_type = reply.headers().get(reqwest::header::CONTENT_TYPE).unwrap();
+        println!("content type {:?}", content_type);
+
+        if content_type.to_str().unwrap().contains(&String::from("v1")) {
+            let manifest = reply.json::<manifestv1::Manifest>().await?;
+            for layer in manifest.fs_layers {
+                println!("{:?}", layer.blob_sum);
+            }
+        }
 
         Ok(())
     }
